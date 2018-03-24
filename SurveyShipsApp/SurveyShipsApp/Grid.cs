@@ -21,7 +21,7 @@ namespace SurveyShipsApp
 			if (string.IsNullOrWhiteSpace(input))
 				throw new ArgumentException("Input cannot be empty");
 
-			var s = input.Split(new[] { ' ' });
+			var s = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 			if (s.Length != 2)
 				throw new ArgumentException("Input is incorrect length");
 

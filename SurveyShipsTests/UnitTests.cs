@@ -20,6 +20,7 @@ namespace SurveyShipsTests
 		[TestCase("0 0", true)] // valid
 		[TestCase("50 51", false)] // invalid
 		[TestCase("A 1", false)] // invalid
+		[TestCase("   3 5    ", true)] // valid - leading and trailing spaces should be ignores
 		public void first_line_should_be_validated(string input, bool expected)
 		{
 			var grid = new Grid();
@@ -39,10 +40,12 @@ namespace SurveyShipsTests
 		[TestCase("1 1 E", true)] // valid
 		[TestCase("1 1 W", true)] // valid
 		[TestCase("50 50 N", true)] // valid
+		[TestCase("50 51 N", false)] // invalid - no on the grid
 		[TestCase("", false)] // invalid
 		[TestCase("5", false)] // invalid
 		[TestCase("5 ", false)] // invalid
 		[TestCase("5 -6", false)] // invalid
+		[TestCase("5 -6 N", false)] // invalid
 		[TestCase("0 0", false)] // invalid
 		[TestCase("50 51", false)] // invalid
 		[TestCase("A 1 N", false)] // invalid
@@ -51,7 +54,17 @@ namespace SurveyShipsTests
 		[TestCase("1 1 1", false)] // invalid
 		public void second_line_should_be_validated(string input, bool expected)
 		{
-			Assert.Fail();
+			var grid = new Grid();
+			grid.SetCoordinates("50 50"); // valid grid.
+
+			var ship = new Ship(grid);
+			if (!expected)
+				Assert.Throws<ArgumentException>(() => ship.SetPosition(input));
+			else
+			{
+				ship.SetPosition(input);
+				Assert.That(grid.IsValid, Is.True);
+			}
 		}
 
 		// third line should fail validation if not a combo of "L", "R" and "F"
