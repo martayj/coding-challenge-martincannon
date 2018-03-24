@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using SurveyShipsApp;
 using System;
 
 namespace SurveyShipsTests
@@ -16,12 +17,19 @@ namespace SurveyShipsTests
 		[TestCase("5", false)] // invalid
 		[TestCase("5 ", false)] // invalid
 		[TestCase("5 -6", false)] // invalid
-		[TestCase("0 0", false)] // invalid
+		[TestCase("0 0", true)] // valid
 		[TestCase("50 51", false)] // invalid
 		[TestCase("A 1", false)] // invalid
 		public void first_line_should_be_validated(string input, bool expected)
 		{
-			Assert.Fail();
+			var grid = new Grid();
+			if (!expected)
+				Assert.Throws<ArgumentException>(() => grid.SetCoordinates(input));
+			else
+			{
+				grid.SetCoordinates(input);
+				Assert.That(grid.IsValid, Is.True);
+			}
 		}
 
 		// second line should fail validation if the input is not "[X] [Y] [orientation]"
