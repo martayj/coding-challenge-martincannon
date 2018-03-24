@@ -131,31 +131,38 @@ namespace SurveyShipsApp
 					case 'R': this.Orientation = Orientation.Rotate(this.Orientation, false); break;
 					case 'F':
 						{
-							// Get the next coords
-							int x = this.X;
-							int y = this.Y;
-
-							if (this.Orientation == Orientation.North)
-								y++;
-							else if (this.Orientation == Orientation.South)
-								y--;
-							else if (this.Orientation == Orientation.East)
-								x++;
-							else
-								x--;
-
-							// TODO: Check that there isn't a warning about these co-ordinates. If there is, ignore.
-
-							if (IsOutsideBounds(x, y))
+							// Check that there isn't a warning about these co-ordinates. If there is, ignore.
+							if (!_grid.CheckForWarning(this.X, this.Y, this.Orientation))
 							{
-								// The ship is lost! don't move, just report lost.
-								this.IsLost = true;
-								return;
+								int x = this.X;
+								int y = this.Y;
+
+								// Get the next coords
+								if (this.Orientation == Orientation.North)
+									y++;
+								else if (this.Orientation == Orientation.South)
+									y--;
+								else if (this.Orientation == Orientation.East)
+									x++;
+								else
+									x--;
+
+								if (IsOutsideBounds(x, y))
+								{
+									// The ship is lost! don't move, just report lost.
+									this.IsLost = true;
+
+									// issue a warning so that other ships don't suffer the same fate.
+									_grid.AddWarning(this.X, this.Y, this.Orientation);
+
+									return;
+								}
+
+								// Move.
+								this.X = x;
+								this.Y = y;
 							}
 
-							// Move.
-							this.X = x;
-							this.Y = y;	
 							break;
 						}
 				}

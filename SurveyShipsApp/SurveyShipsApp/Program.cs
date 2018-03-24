@@ -15,6 +15,30 @@ namespace SurveyShipsApp
 			Console.WriteLine("--- Survey Ships ---");
 
 			// Get the grid size
+			var grid = GetGrid();
+
+			// Get the ships
+			var ships = GetShips(grid);
+
+			// Process the ships
+			ProcessShips(ships);
+
+			Console.WriteLine("Press any key to exit");
+			Console.ReadKey();
+		}
+
+		private static void ProcessShips(List<Ship> ships)
+		{
+			foreach (var ship in ships)
+			{
+				ship.Go();
+
+				Console.WriteLine(ship.ToString());
+			}
+		}
+
+		private static Grid GetGrid()
+		{
 			var grid = new Grid();
 			while (!grid.IsValid)
 			{
@@ -29,70 +53,66 @@ namespace SurveyShipsApp
 					Console.WriteLine("Invalid grid co-ordinates: " + ex.Message);
 				}
 			}
+			return grid;
+		}
 
-			// Get the ships
-			Console.WriteLine("Please enter ship co-ordinates and orientation [X Y O], or press return finish:");
+		private static List<Ship> GetShips(Grid grid)
+		{
 			var ships = new List<Ship>();
 			while (true)
 			{
-				var positionLine = Console.ReadLine();
-				if (string.IsNullOrWhiteSpace(positionLine))
+				var ship = GetShip(grid);
+				if (ship == null)
 					break;
-
-				var ship = new Ship(grid);
-
-				// Get the position
-				do
-				{
-					try
-					{
-						ship.SetPosition(positionLine);
-					}
-					catch (ArgumentException ex)
-					{
-						Console.WriteLine("Invalid ship position: " + ex.Message);
-					}
-				}
-				while (!ship.IsValidPosition);
-
-				// Get the instructions
-				Console.WriteLine("Please enter ship instructions (L, R, F):");
-				var instructionsLine = Console.ReadLine();
-				do
-				{
-					try
-					{
-						ship.SetInstructions(instructionsLine);
-					}
-					catch (ArgumentException ex)
-					{
-						Console.WriteLine("Invalid instructions: " + ex.Message);
-					}
-				}
-				while (!ship.IsValidInstructions);
 
 				// Add the ship to the fleet.
 				ships.Add(ship);
 			}
 
-			// if we're here and we have ships in our fleet then set sail!
-			foreach (var ship in ships)
+			return ships;
+		}
+
+		private static Ship GetShip(Grid grid)
+		{
+			Console.WriteLine("Please enter ship co-ordinates and orientation [X Y O], or press return finish:");
+
+			var ship = new Ship(grid);
+
+			// Get the position
+			do
 			{
-				ship.Go();
+				var positionLine = Console.ReadLine();
+				if (string.IsNullOrWhiteSpace(positionLine))
+					return null;
 
-				var output = $"{ship.X} {ship.Y}";
-				if (ship.IsLost)
+				try
 				{
-					output += " LOST";
-
-					// TODO: record that the ship was lost at these coordinates.
-					//_grid.AddWarning(ship.X, ship.Y);
+					ship.SetPosition(positionLine);
 				}
-				Console.WriteLine(output);
+				catch (ArgumentException ex)
+				{
+					Console.WriteLine("Invalid ship position: " + ex.Message);
+				}
 			}
+			while (!ship.IsValidPosition);
 
-			Console.WriteLine("Press any key to finish");
-			Console.ReadKey();
+			// Get the instructions
+			Console.WriteLine("Please enter ship instructions (L, R, F):");
+			do
+			{
+				var instructionsLine = Console.ReadLine();
+				try
+				{
+					ship.SetInstructions(instructionsLine);
+				}
+				catch (ArgumentException ex)
+				{
+					Console.WriteLine("Invalid instructions: " + ex.Message);
+				}
+			}
+			while (!ship.IsValidInstructions);
+
+			return ship;
 		}
 	}
 }

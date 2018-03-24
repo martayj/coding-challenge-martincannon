@@ -105,12 +105,14 @@ namespace SurveyShipsTests
 			}
 		}
 
+		// TODO: This is testing the user interface rather than the functionality.
+		// Let's do this another time.
 		// all subsequent lines should be ship position then instructions
-		[Test]
-		public void subsequent_lines_should_be_ship_position_then_instructions()
-		{
-			Assert.Fail();
-		}
+		//[Test]
+		//public void subsequent_lines_should_be_ship_position_then_instructions()
+		//{
+		//	Assert.Fail();
+		//}
 		#endregion Input
 
 		#region Output
@@ -148,7 +150,23 @@ namespace SurveyShipsTests
 		[Test]
 		public void should_ignore_instruction_if_warning_indicates_that_a_ship_has_already_fallen_off_at_that_grid_point()
 		{
-			Assert.Fail();
+			var grid = new Grid();
+			grid.SetCoordinates("5 3");
+
+			var ship = new Ship(grid);
+			ship.SetPosition("1 1 E");
+			ship.SetInstructions("FFFFF");
+			ship.Go();
+
+			Assert.That(ship.ToString(), Is.EqualTo("5 1 E LOST")); // ship one got lost at 5 1 E
+
+			var ship2 = new Ship(grid);
+			ship2.SetPosition("1 1 E");
+			ship2.SetInstructions("FFFFFFFF");
+			ship2.Go();
+			
+			// assert that the ship doesn't go any further than the previous one.
+			Assert.That(ship2.ToString(), Is.EqualTo("5 1 E"));
 		}
 
 		// should work like given example output

@@ -15,6 +15,8 @@ namespace SurveyShipsApp
 		public int X { get; private set; }
 		public int Y { get; private set; }
 
+		private List<Tuple<int, int, Orientation>> _warnings = new List<Tuple<int, int, Orientation>>();
+
 		public void SetCoordinates(string input)
 		{
 			// validate the coordinates
@@ -44,6 +46,17 @@ namespace SurveyShipsApp
 			this.X = x;
 			this.Y = y;
 			this.IsValid = true;
+		}
+
+		public void AddWarning(int x, int y, Orientation orientation)
+		{
+			// TODO: could use a hash of the instruction in a sorted list instead of tuple as it would be quicker.
+			_warnings.Add(Tuple.Create(x, y, orientation));
+		}
+
+		public bool CheckForWarning(int x, int y, Orientation orientation)
+		{
+			return _warnings.Any(w => w.Item1 == x && w.Item2 == y && w.Item3 == orientation);
 		}
 	}
 }
