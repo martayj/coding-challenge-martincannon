@@ -27,22 +27,22 @@ namespace SurveyShipsApp
 
 			int x, y;
 			if (!int.TryParse(s[0], out x))
-				throw new ArgumentException("Invalid x co-oridinate");
+				throw new ArgumentException("Invalid x co-ordinate");
 
 			if (!int.TryParse(s[1], out y))
-				throw new ArgumentException("Invalid y co-oridinate");
+				throw new ArgumentException("Invalid y co-ordinate");
 
 			// Cannot be greater than 50
 			if (x > MaxCoordinate || y > MaxCoordinate)
-				throw new ArgumentException($"Co-oridinates cannot exceed {MaxCoordinate}");
+				throw new ArgumentException($"Co-ordinates cannot exceed {MaxCoordinate}");
 
 			// Cannot be negative
 			if (x < 0 || y < 0)
-				throw new ArgumentException($"Co-oridinates cannot be negative");
+				throw new ArgumentException($"Co-ordinates cannot be negative");
 
 			// Valid co-ordinates so set the properties and the valid flag.
 			this.X = x;
-			this.Y = x;
+			this.Y = y;
 			this.IsValid = true;
 		}
 	}

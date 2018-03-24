@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SurveyShipsApp;
 using System;
+using System.Collections.Generic;
 
 namespace SurveyShipsTests
 {
@@ -8,29 +9,40 @@ namespace SurveyShipsTests
 	public class UnitTests
 	{
 		#region Input
-		// first line should fail validation if the input is not "[X] [Y]"
-		// first line should fail validation if either coordinate is greater than 50
-		[TestCase("1 1", true)] // valid
-		[TestCase("5 3", true)] // valid
-		[TestCase("50 50", true)] // valid
-		[TestCase("", false)] // invalid
-		[TestCase("5", false)] // invalid
-		[TestCase("5 ", false)] // invalid
-		[TestCase("5 -6", false)] // invalid
-		[TestCase("0 0", true)] // valid
-		[TestCase("50 51", false)] // invalid
-		[TestCase("A 1", false)] // invalid
-		[TestCase("   3 5    ", true)] // valid - leading and trailing spaces should be ignores
-		public void first_line_should_be_validated(string input, bool expected)
+		public static IEnumerable<TestCaseData> first_line_should_be_valid_cases
+		{
+			get
+			{
+				yield return new TestCaseData("1 1", 1, 1);
+				yield return new TestCaseData("5 3", 5, 3);
+				yield return new TestCaseData("50 50", 50, 50);
+				yield return new TestCaseData("0 0", 0, 0);
+				yield return new TestCaseData("   3 5    ", 3, 5); // leading and trailing spaces should be ignores
+			}
+		}
+
+		[TestCaseSource("first_line_should_be_valid_cases")]
+		public void first_line_should_be_valid(string input, int x, int y)
 		{
 			var grid = new Grid();
-			if (!expected)
-				Assert.Throws<ArgumentException>(() => grid.SetCoordinates(input));
-			else
-			{
-				grid.SetCoordinates(input);
-				Assert.That(grid.IsValid, Is.True);
-			}
+			grid.SetCoordinates(input);
+			Assert.That(grid.IsValid, Is.True);
+			Assert.That(grid.X, Is.EqualTo(x));
+			Assert.That(grid.Y, Is.EqualTo(y));
+		}
+
+		// first line should fail validation if the input is not "[X] [Y]"
+		// first line should fail validation if either coordinate is greater than 50
+		[TestCase("")] 
+		[TestCase("5")] 
+		[TestCase("5 ")] 
+		[TestCase("5 -6")] 
+		[TestCase("50 51")] 
+		[TestCase("A 1")] 
+		public void first_line_should_fail_validation_validated(string input)
+		{
+			var grid = new Grid();
+			Assert.Throws<ArgumentException>(() => grid.SetCoordinates(input));
 		}
 
 		// second line should fail validation if the input is not "[X] [Y] [orientation]"
@@ -106,14 +118,30 @@ namespace SurveyShipsTests
 		[Test]
 		public void should_indicate_the_final_grid_position_and_orientation_of_each_ship()
 		{
-			Assert.Fail();
+			var grid = new Grid();
+			grid.SetCoordinates("5 3");
+
+			var ship = new Ship(grid);
+			ship.SetPosition("1 1 E");
+			ship.SetInstructions("RFRFRFRF");
+			ship.Go();
+
+			Assert.That(ship.ToString(), Is.EqualTo("1 1 E"));
 		}
 
 		// should indicate lost if a ship falls off the edge of the grid
 		[Test]
 		public void should_indicate_lost_if_a_ship_falls_off_the_edge_of_the_grid()
 		{
-			Assert.Fail();
+			var grid = new Grid();
+			grid.SetCoordinates("5 3");
+
+			var ship = new Ship(grid);
+			ship.SetPosition("1 1 E");
+			ship.SetInstructions("FFFFF");
+			ship.Go();
+
+			Assert.That(ship.ToString(), Is.EqualTo("5 1 E LOST"));
 		}
 
 		// should ignore instruction if warning indicates that a ship has already fallen off at that grid point
@@ -121,6 +149,36 @@ namespace SurveyShipsTests
 		public void should_ignore_instruction_if_warning_indicates_that_a_ship_has_already_fallen_off_at_that_grid_point()
 		{
 			Assert.Fail();
+		}
+
+		// should work like given example output
+		[Test]
+		public void should_work_like_given_example_output()
+		{
+			var grid = new Grid();
+			grid.SetCoordinates("5 3");
+
+			var ships = new List<Ship>();
+			var addShip = new Action<string, string>((position, instructions) =>
+			{
+				var ship = new Ship(grid);
+				ship.SetPosition(position);
+				ship.SetInstructions(instructions);
+				ships.Add(ship);
+			});
+
+			addShip("1 1 E", "RFRFRFRF");
+			addShip("3 2 N", "FRRFLLFFRRFLL");
+			addShip("0 3 W", "LLFFFLFLFL");
+
+			foreach (var ship in ships)
+			{
+				ship.Go();
+			}
+
+			Assert.That(ships[0].ToString(), Is.EqualTo("1 1 E"));
+			Assert.That(ships[1].ToString(), Is.EqualTo("3 3 N LOST"));
+			Assert.That(ships[2].ToString(), Is.EqualTo("2 3 S"));
 		}
 		#endregion Output
 	}
