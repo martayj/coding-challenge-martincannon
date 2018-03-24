@@ -19,10 +19,13 @@ namespace SurveyShipsApp
 		}
 
 		// private setters so that they can only be changed by calling methods that validate
-		public bool IsValid { get; private set; } = false;
+		public bool IsValidPosition { get; private set; } = false;
 		public int X { get; private set; }
 		public int Y { get; private set; }
 		public char Orientation { get; private set; }
+
+		public bool IsValidInstructions { get; private set; } = false;
+		public string Instructions { get; private set; }
 
 		public void SetPosition(string input)
 		{
@@ -59,9 +62,22 @@ namespace SurveyShipsApp
 			this.X = x;
 			this.Y = x;
 			this.Orientation = s[2][0];
-			this.IsValid = true;
+			this.IsValidPosition = true;
 		}
 
+		public void SetInstructions(string input)
+		{
+			// validate the instructions
+			if (string.IsNullOrWhiteSpace(input))
+				throw new ArgumentException("Input cannot be empty");
 
+			var accepted = new[] { 'L', 'R', 'F' };
+			if (input.Any(x => !accepted.Contains(x)))
+				throw new ArgumentException($"Instructions must be " + string.Join(", ", accepted));
+
+			// the instructions are valid so set the properties and valid flag.
+			this.Instructions = input;
+			this.IsValidInstructions = true;
+		}
 	}
 }

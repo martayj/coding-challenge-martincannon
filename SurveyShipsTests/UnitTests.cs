@@ -63,7 +63,7 @@ namespace SurveyShipsTests
 			else
 			{
 				ship.SetPosition(input);
-				Assert.That(grid.IsValid, Is.True);
+				Assert.That(ship.IsValidPosition, Is.True);
 			}
 		}
 
@@ -72,13 +72,25 @@ namespace SurveyShipsTests
 		[TestCase("LRF", true)] // valid
 		[TestCase("LLL", true)] // invalid
 		[TestCase("LLM", false)] // invalid character
-		[TestCase("", true)] // invalid
-		[TestCase("1", true)] // invalid
+		[TestCase("", false)] // invalid
+		[TestCase("1", false)] // invalid
 		[TestCase("LLLLLLLLLLRRRRRRRRRRFFFFFFFFFFLLLLLLLLLLRRRRRRRRRRFFFFFFFFFFLLLLLLLLLLRRRRRRRRRRFFFFFFFFFFLLLLLLLLL", true)] // valid - 99 chars
 		[TestCase("LLLLLLLLLLRRRRRRRRRRFFFFFFFFFFLLLLLLLLLLRRRRRRRRRRFFFFFFFFFFLLLLLLLLLLRRRRRRRRRRFFFFFFFFFFLLLLLLLLLL", true)] // invalid - 100 chars
 		public void third_line_should_be_validated(string input, bool expected)
 		{
-			Assert.Fail();
+			var grid = new Grid();
+			grid.SetCoordinates("50 50"); // valid grid.
+
+			var ship = new Ship(grid);
+			ship.SetPosition("10 10 N"); // valid position.
+
+			if (!expected)
+				Assert.Throws<ArgumentException>(() => ship.SetInstructions(input));
+			else
+			{
+				ship.SetInstructions(input);
+				Assert.That(ship.IsValidInstructions, Is.True);
+			}
 		}
 
 		// all subsequent lines should be ship position then instructions
